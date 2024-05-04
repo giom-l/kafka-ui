@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [ "feat/improve_docker_publish" ]
+    branches: [ "feat/ilp_publish" ]
 
 permissions:
   contents: read
@@ -76,10 +76,10 @@ jobs:
           provenance: false
           push: true
           tags: |
-            ghcr.io/kafbat/kafka-ui:${{ steps.build.outputs.version }}
-            ghcr.io/kafbat/kafka-ui:main
-            kafbat/kafka-ui:${{ steps.build.outputs.version }}
-            kafbat/kafka-ui:main            
+            ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
+            ghcr.io/giom-l/kafka-ui:main
+            gocho/kafka-ui:${{ steps.build.outputs.version }}
+            gocho/kafka-ui:main            
           build-args: |
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
