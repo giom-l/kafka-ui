@@ -11,23 +11,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy: 
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
     permissions:
       contents: read
       packages: write
 
     steps:
-
-      - name: prepare 
-        run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV 
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -71,40 +59,26 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: api
-          platforms: ${{ matrix.platform }} #linux/amd64,linux/arm64
-          #provenance: false
-          #push: false
+          platforms: linux/amd64,linux/arm64
+          provenance: false
+          push: false
           tags: |
-            ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
-            ghcr.io/giom-l/kafka-ui:main
-            gocho/kafka-ui:${{ steps.build.outputs.version }}
-            gocho/kafka-ui:main            
+            kafka-ui:latest
+          #   ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
+          #   ghcr.io/giom-l/kafka-ui:main
+          #   gocho/kafka-ui:${{ steps.build.outputs.version }}
+          #   gocho/kafka-ui:main            
           build-args: |
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          outputs: type=image, name=kafka-ui,push-by-digest=true,name-canonical=true,push=true
 
-      - name: Export digest
-        run: |
-          mkdir -p /tmp/digests
-          digest="${{ steps.docker_build_and_push_by_digest.outputs.digest }}"    
-          touch "/tmp/digest/${digest#sha256:}"
-
-      - name: Upload digest
+      - name: Upload docker image
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ env.PLATFORM_PAIR }}
-          path: /tmp/digests/*
-          if-no-files-found: error
+          name: image
+          path: /tmp
           retention-days: 1
-
-      # - name: Upload docker image
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: image
-      #     path: /tmp/image.tar
-      #     retention-days: 7
 
   deploy-ghcr:
     runs-on: ubuntu-latest
@@ -114,39 +88,37 @@ jobs:
       packages: write
 
     steps: 
-      # - name: Download docker image
-      #   uses: actions/download-artifact@v4
+      # - name: Checkout
+      #   uses: actions/checkout@v4
       #   with:
-      #     name: image
-      #     path: /tmp
+      #     ref: ${{ github.event.pull_request.head.sha }}
+      #     token: ${{ github.token }}
 
-      # - name: Load Docker image
-      #   run: |
-      #     docker load --input /tmp/image.tar
-      #     docker ls -a
-      - name: Download digests
+      - name: Download docker image
         uses: actions/download-artifact@v4
         with:
-          path: /tmp/digests
-          pattern: digests-*
-          merge-multiple: true
+          name: image
+          path: /tmp
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3      
-
-      - name: Create manifest list and push
-        working-directory: /tmp/digests
+      - name: Load Docker image
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          docker load --input image/kafka-ui.tar
           docker ls -a
-        
-      # - name: Login to GitHub Container Registry
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: "giom-l"
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+          docker images
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: "giom-l"
+          password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Tag for registry and push
+        run: |
+          docker tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
+          docker tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
+          docker push ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
+          docker push ghcr.io/giom-l/kafka-ui:main
       # - name: Login to Dockerhub
       #   uses: docker/login-action@v3
       #   with:
