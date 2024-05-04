@@ -71,7 +71,7 @@ jobs:
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          outputs: type=docker,dest=/tmp/image.tar
+          outputs: type=oci,dest=/tmp/image.tar
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
