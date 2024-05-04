@@ -11,11 +11,23 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy: 
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
     permissions:
       contents: read
       packages: write
 
     steps:
+
+      - name: prepare 
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV 
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -53,32 +65,46 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Build & push docker image
-        id: docker_build_and_push
+      - name: Build & push by digest
+        id: docker_build_and_push_by_digest
         uses: docker/build-push-action@v5
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: api
-          platforms: linux/amd64,linux/arm64
-          provenance: false
-          push: false
-          # tags: |
-          #   ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
-          #   ghcr.io/giom-l/kafka-ui:main
-          #   gocho/kafka-ui:${{ steps.build.outputs.version }}
-          #   gocho/kafka-ui:main            
+          platforms: ${{ matrix.platform }} #linux/amd64,linux/arm64
+          #provenance: false
+          #push: false
+          tags: |
+            ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
+            ghcr.io/giom-l/kafka-ui:main
+            gocho/kafka-ui:${{ steps.build.outputs.version }}
+            gocho/kafka-ui:main            
           build-args: |
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          outputs: type=oci,dest=/tmp/image.tar
+          outputs: type=image, name=kafka-ui,push-by-digest=true,name-canonical=true,push=true
 
-      - name: Upload docker image
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.docker_build_and_push_by_digest.outputs.digest }}"    
+          touch "/tmp/digest/${digest#sha256:}"
+
+      - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: image
-          path: /tmp/image.tar
-          retention-days: 7
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+      # - name: Upload docker image
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: image
+      #     path: /tmp/image.tar
+      #     retention-days: 7
 
   deploy-ghcr:
     runs-on: ubuntu-latest
@@ -88,17 +114,32 @@ jobs:
       packages: write
 
     steps: 
-      - name: Download docker image
+      # - name: Download docker image
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: image
+      #     path: /tmp
+
+      # - name: Load Docker image
+      #   run: |
+      #     docker load --input /tmp/image.tar
+      #     docker ls -a
+      - name: Download digests
         uses: actions/download-artifact@v4
         with:
-          name: image
-          path: /tmp
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
 
-      - name: Load Docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3      
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
         run: |
-          docker load --input /tmp/image.tar
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
           docker ls -a
-      
+        
       # - name: Login to GitHub Container Registry
       #   uses: docker/login-action@v3
       #   with:
