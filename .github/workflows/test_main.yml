@@ -190,14 +190,14 @@ jobs:
 
       - name: Import image in containerd
         run: |
-          ctr i import --base-name kafka-ui --digests --all-platforms /tmp/image.tar
+          sudo ctr i import --base-name kafka-ui --digests --all-platforms /tmp/image.tar
       
       - name: Push images to GHCR
         run: |
-          ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
-          ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:latest
-          ctr image push ghcr.io/giom-l/kafka-ui:main
-          ctr image push ghcr.io/giom-l/kafka-ui:latest
+          sudo ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
+          sudo ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:latest
+          sudo ctr image push ghcr.io/giom-l/kafka-ui:main
+          sudo ctr image push ghcr.io/giom-l/kafka-ui:latest
 
       - name: Build & push docker image
         id: docker_build_and_push
