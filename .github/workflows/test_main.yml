@@ -73,11 +73,16 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
+      - name: debug
+        run: |
+          docker images 
+          docker ls -a
+
       - name: Upload docker image
         uses: actions/upload-artifact@v4
         with:
           name: image
-          path: /tmp
+          path: /tmp/image.tar
           retention-days: 1
 
   deploy-ghcr:
@@ -102,7 +107,7 @@ jobs:
 
       - name: Load Docker image
         run: |
-          docker load --input image/kafka-ui.tar
+          docker load --input /tmp/image.tar
           docker ls -a
           docker images
       
