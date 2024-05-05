@@ -124,7 +124,7 @@ jobs:
       - name: Manually unpack the tar
         run: |
           mkdir -p /tmp/kafka-ui && tar -C /tmp/kafka-ui -xf /tmp/image.tar
-          ls -laRH /tmp
+          ls -laRH /tmp/kafka-ui
       # - name: Load Docker image
       #   run: |
       #     docker load --input /tmp/image.tar
