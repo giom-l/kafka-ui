@@ -199,6 +199,12 @@ jobs:
           sudo ctr image push ghcr.io/giom-l/kafka-ui:main
           sudo ctr image push ghcr.io/giom-l/kafka-ui:latest
 
+      - name: load image in docker
+        run: | 
+          docker load --input /tmp/imagedump.tar
+          docker images
+          docker tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:main3
+          docker push ghcr.io/giom-l/kafka-ui:main3     
       - name: Build & push docker image
         if: success() || failure()
         id: docker_build_and_push
