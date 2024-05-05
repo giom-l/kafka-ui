@@ -53,6 +53,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      # Let's use containerd as runtime to avoid this issue that is not really closed : https://github.com/docker/buildx/issues/59   
+      - name: Setup containerd
+        uses: crazy-max/ghaction-setup-containerd@v3              
+
       - name: Build & push 
         id: docker_build_and_push_by_digest
         uses: docker/build-push-action@v5
@@ -73,11 +77,12 @@ jobs:
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+          outputs: type=oci,dest=/tmp/image.tar
 
       - name: debug
         run: |
           docker images 
-          docker ls -a
+          docker ps -a
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
@@ -109,7 +114,7 @@ jobs:
       - name: Load Docker image
         run: |
           docker load --input /tmp/image.tar
-          docker ls -a
+          docker ps -a
           docker images
       
       - name: Login to GitHub Container Registry
