@@ -194,8 +194,8 @@ jobs:
       
       - name: Push images to GHCR
         run: |
-          sudo ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
-          sudo ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:latest
+          sudo ctr image tag docker.io/library/kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
+          sudo ctr image tag docker.io/library/kafka-ui:latest ghcr.io/giom-l/kafka-ui:latest
           sudo ctr image push ghcr.io/giom-l/kafka-ui:main
           sudo ctr image push ghcr.io/giom-l/kafka-ui:latest
 
@@ -211,5 +211,5 @@ jobs:
           load: true
           push: true
           tags: |
-            ghcr.io/giom-l/kafka-ui:main
-            ghcr.io/giom-l/kafka-ui:latest
+            ghcr.io/giom-l/kafka-ui:main2
+            ghcr.io/giom-l/kafka-ui:latest2
