@@ -91,6 +91,7 @@ jobs:
 
       - name: debug
         run: |
+          docker images 
           ls -la /tmp
 
       - name: Upload docker image
@@ -168,7 +169,7 @@ jobs:
         with:
           # builder: ${{ steps.buildx.outputs.name }}
           # context: api
-          context: oci-layout:///tmp/kafka-ui
+          context: oci-layout:///tmp/kafka-ui:latest
           #platforms: linux/amd64,linux/arm64
           provenance: false
           push: true
