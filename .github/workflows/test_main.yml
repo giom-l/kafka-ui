@@ -135,8 +135,8 @@ jobs:
 
       # Build multi platform images and loading them at the same time is not possible with default container runtime : https://github.com/docker/buildx/issues/59   
       # So let's use containerd instead as it supports this option
-      - name: Setup containerd
-        uses: crazy-max/ghaction-setup-containerd@v3
+      - name: Setup docker with containerd
+        uses: crazy-max/ghaction-setup-docker@v3
         with:
           daemon-config: |
             {
