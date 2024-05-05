@@ -77,7 +77,7 @@ jobs:
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          outputs: type=oci,dest=/tmp/image.tar
+          outputs: type=oci,dest=/tmp
 
       - name: debug
         run: |
@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: image
-          path: /tmp/image.tar
+          path: /tmp
           retention-days: 1
 
   deploy-ghcr:
@@ -113,7 +113,7 @@ jobs:
 
       - name: Load Docker image
         run: |
-          docker load --input /tmp/image.tar
+          docker load --input /tmp/image.zip
           docker ps -a
           docker images
       
