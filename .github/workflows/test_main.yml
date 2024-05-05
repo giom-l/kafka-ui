@@ -94,11 +94,23 @@ jobs:
           docker images 
           ls -la /tmp
 
+      - name: Dump docker image
+        run: |
+          docker image save kafka-ui:latest > /tmp/imagedump.tar
+  
+
       - name: Upload docker image
         uses: actions/upload-artifact@v4
         with:
           name: image
           path: /tmp/image.tar
+          retention-days: 1
+
+      - name: Upload docker image
+        uses: actions/upload-artifact@v4
+        with:
+          name: imagedump
+          path: /tmp/imagedump.tar
           retention-days: 1
 
   deploy-ghcr:
@@ -121,11 +133,19 @@ jobs:
           name: image
           path: /tmp
 
+
+      - name: Download docker imagedump
+        uses: actions/download-artifact@v4
+        with:
+          name: imagedump
+          path: /tmp
+
       # Due to https://github.com/docker/buildx/issues/1553
       - name: Manually unpack the tar
         run: |
           mkdir -p /tmp/kafka-ui && tar -C /tmp/kafka-ui -xf /tmp/image.tar
           ls -laRH /tmp/kafka-ui
+          mkdir -p /tmp/kafka-ui-dump && tar -C /tmp/kafka-ui-dump -xf /tmp/imagedump.tar
       # - name: Load Docker image
       #   run: |
       #     docker load --input /tmp/image.tar
@@ -163,23 +183,33 @@ jobs:
               }
             }              
 
+
+      # with containerd way
+      - name: Set up containerd
+        uses: crazy-max/ghaction-setup-containerd@v2       
+
+      - name: Import image in containerd
+        run: |
+          ctr i import --base-name kafka-ui --digests --all-platforms /tmp/image.tar
+      
+      - name: Push images to GHCR
+        run: |
+          ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
+          ctr image tag kafka-ui:latest ghcr.io/giom-l/kafka-ui:latest
+          ctr image push ghcr.io/giom-l/kafka-ui:main
+          ctr image push ghcr.io/giom-l/kafka-ui:latest
+
       - name: Build & push docker image
         id: docker_build_and_push
         uses: docker/build-push-action@v5
         with:
           # builder: ${{ steps.buildx.outputs.name }}
           # context: api
-          context: oci-layout:///tmp/kafka-ui:latest
+          context: /tmp/kafka-ui-dump
           #platforms: linux/amd64,linux/arm64
           provenance: false
+          load: true
           push: true
           tags: |
             ghcr.io/giom-l/kafka-ui:main
             ghcr.io/giom-l/kafka-ui:latest
-          #   ghcr.io/giom-l/kafka-ui:${{ steps.build.outputs.version }}
-          #   gocho/kafka-ui:${{ steps.build.outputs.version }}
-          #   gocho/kafka-ui:main            
-          # build-args: |
-          #   JAR_FILE=api-${{ steps.build.outputs.version }}.jar
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
