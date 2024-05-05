@@ -108,6 +108,9 @@ jobs:
           name: image
           path: /tmp
 
+      - name: debug
+        run: |
+          ls -laH /tmp          
       # - name: Load Docker image
       #   run: |
       #     docker load --input /tmp/image.tar
