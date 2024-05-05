@@ -53,8 +53,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      # Build multi platform images and loading them at the same time is not possible with default container runtime : https://github.com/docker/buildx/issues/59   
-      # So let's use containerd instead as it supports this option
       - name: Setup containerd
         uses: crazy-max/ghaction-setup-containerd@v3              
 
@@ -135,8 +133,17 @@ jobs:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Build multi platform images and loading them at the same time is not possible with default container runtime : https://github.com/docker/buildx/issues/59   
+      # So let's use containerd instead as it supports this option
       - name: Setup containerd
-        uses: crazy-max/ghaction-setup-containerd@v3              
+        uses: crazy-max/ghaction-setup-containerd@v3
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }              
 
       - name: Build & push docker image
         id: docker_build_and_push
