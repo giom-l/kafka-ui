@@ -81,8 +81,7 @@ jobs:
 
       - name: debug
         run: |
-          docker images 
-          docker ps -a
+          ls -la /tmp
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
@@ -135,6 +134,9 @@ jobs:
       #   with:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Setup containerd
+        uses: crazy-max/ghaction-setup-containerd@v3              
 
       - name: Build & push docker image
         id: docker_build_and_push
