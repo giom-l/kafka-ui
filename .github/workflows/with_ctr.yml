@@ -1,4 +1,4 @@
-name: "Test Main: Build & deploy"
+name: "Main with CTR : Build & deploy"
 on:
   workflow_dispatch:
 
