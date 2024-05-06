@@ -260,7 +260,7 @@ jobs:
       - name: Push images to dockerhub
         run: |
           sudo ctr image tag docker.io/library/kafka-ui:latest docker.io/gocho/kafka-ui:maindh
-          sudo ctr image tag docker.io/library/kafka-ui:latest docker.io/gocho/kafka-ui:latestgh
+          sudo ctr image tag docker.io/library/kafka-ui:latest docker.io/gocho/kafka-ui:latestdh
           sudo ctr image push --user "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" docker.io/gocho/kafka-ui:maindh
           sudo ctr image push --user "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" docker.io/gocho/kafka-ui:latestdh
 
