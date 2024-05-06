@@ -194,10 +194,10 @@ jobs:
       
       - name: Push images to GHCR
         run: |
-          sudo ctr image tag docker.io/library/kafka-ui:latest ghcr.io/giom-l/kafka-ui:main
-          sudo ctr image tag docker.io/library/kafka-ui:latest ghcr.io/giom-l/kafka-ui:latest
-          sudo ctr image push ghcr.io/giom-l/kafka-ui:main
-          sudo ctr image push ghcr.io/giom-l/kafka-ui:latest
+          sudo ctr image tag docker.io/library/kafka-ui:latest ghcr.io/giom-l/kafka-ui:mainctr
+          sudo ctr image tag docker.io/library/kafka-ui:latest ghcr.io/giom-l/kafka-ui:latestctr
+          sudo ctr image push --user "giom-l:${{ secrets.GITHUB_TOKEN }}" ghcr.io/giom-l/kafka-ui:mainctr
+          sudo ctr image push --user "giom-l:${{ secrets.GITHUB_TOKEN }}" ghcr.io/giom-l/kafka-ui:latestctr
 
       - name: load image in docker
         if: success() || failure()
@@ -221,3 +221,50 @@ jobs:
           tags: |
             ghcr.io/giom-l/kafka-ui:main2
             ghcr.io/giom-l/kafka-ui:latest2
+
+      - name: Build& push with buildx
+        if: success() || failure()
+        id: imagetools
+        run: |
+          docker buildx imagetools create -f /tmp/kafka-ui/
+        uses: docker/build-push-action@v5
+        with:
+          # builder: ${{ steps.buildx.outputs.name }}
+          # context: api
+          context: /tmp/kafka-ui-dump
+          platforms: linux/amd64,linux/arm64
+          provenance: true
+          load: true
+          push: true
+          tags: |
+            ghcr.io/giom-l/kafka-ui:main2
+            ghcr.io/giom-l/kafka-ui:latest2
+  deploy-dockerhub:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+
+    steps: 
+      - name: Download docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: image
+          path: /tmp
+
+      # with containerd way
+      - name: Set up containerd
+        uses: crazy-max/ghaction-setup-containerd@v2       
+
+      - name: Import image in containerd
+        run: |
+          sudo ctr i import --base-name kafka-ui --digests --all-platforms /tmp/image.tar
+      
+      - name: Push images to dockerhub
+        run: |
+          sudo ctr image tag docker.io/library/kafka-ui:latest giom-l/kafka-ui:maindh
+          sudo ctr image tag docker.io/library/kafka-ui:latest giom-l/kafka-ui:latestgh
+          sudo ctr image push --user "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" giom-l/kafka-ui:maindh
+          sudo ctr image push --user "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" giom-l/kafka-ui:latestdh
+
