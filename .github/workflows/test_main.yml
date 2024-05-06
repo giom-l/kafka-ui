@@ -74,7 +74,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: api
           platforms: linux/amd64,linux/arm64
-          provenance: false
+          provenance: true
           push: false
           load: true
           tags: |
@@ -215,7 +215,7 @@ jobs:
           # context: api
           context: /tmp/kafka-ui-dump
           platforms: linux/amd64,linux/arm64
-          provenance: false
+          provenance: true
           load: true
           push: true
           tags: |
