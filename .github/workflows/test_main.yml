@@ -223,10 +223,6 @@ jobs:
             ghcr.io/giom-l/kafka-ui:latest2
 
       - name: Build& push with buildx
-        if: success() || failure()
-        id: imagetools
-        run: |
-          docker buildx imagetools create -f /tmp/kafka-ui/
         uses: docker/build-push-action@v5
         with:
           # builder: ${{ steps.buildx.outputs.name }}
