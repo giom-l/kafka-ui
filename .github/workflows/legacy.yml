@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [ "feat/improve_docker_publish" ]
+    branches: [ "never" ]
 
 permissions:
   contents: read
