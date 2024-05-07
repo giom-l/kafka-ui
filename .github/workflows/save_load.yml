@@ -1,4 +1,4 @@
-name: "Main with CTR : Build & deploy"
+name: "Main save/load : Build & deploy"
 on:
   workflow_dispatch:
 
@@ -37,8 +37,6 @@ jobs:
           export VERSION=$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      # docker images
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -76,13 +74,17 @@ jobs:
           provenance: mode=min
           sbom: true
           push: false
+          load: true
           tags: |
             kafka-ui:temp
           build-args: |
             JAR_FILE=api-${{ steps.build.outputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          outputs: type=oci,dest=/tmp/image.tar
+
+      - name: Dump docker image
+        run: |
+          docker image save kafka-ui:temp > /tmp/image.tar
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
@@ -105,20 +107,22 @@ jobs:
           name: image
           path: /tmp
 
-      # with containerd way
-      - name: Set up containerd
-        uses: crazy-max/ghaction-setup-containerd@v3       
-
-      - name: Import image in containerd
+      - name: Load docker image into daemon
         run: |
-          sudo ctr i import --base-name kafka-ui --digests --all-platforms /tmp/image.tar
+          docker load --input /tmp/image.tar
       
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: "${{ github.actor }}"
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push images to GHCR
         run: |
-          sudo ctr image tag docker.io/library/kafka-ui:temp ghcr.io/giom-l/kafka-ui:main-ctr
-          sudo ctr image tag docker.io/library/kafka-ui:temp ghcr.io/giom-l/kafka-ui:${{ needs.build.outputs.version }}-ctr
-          sudo ctr image push --user "giom-l:${{ secrets.GITHUB_TOKEN }}" ghcr.io/giom-l/kafka-ui:main-ctr
-          sudo ctr image push --user "giom-l:${{ secrets.GITHUB_TOKEN }}" ghcr.io/giom-l/kafka-ui:${{ needs.build.outputs.version }}-ctr
+          docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:main
+          docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:${{ needs.build.outputs.version }}
+          docker push ghcr.io/giom-l/kafka-ui:main
+          docker push ghcr.io/giom-l/kafka-ui:${{ needs.build.outputs.version }}
 
   deploy-dockerhub:
     runs-on: ubuntu-latest
@@ -134,18 +138,20 @@ jobs:
           name: image
           path: /tmp
 
-      # with containerd way
-      - name: Set up containerd
-        uses: crazy-max/ghaction-setup-containerd@v3       
-
-      - name: Import image in containerd
+      - name: Load docker image into daemon
         run: |
-          sudo ctr i import --base-name kafka-ui --digests --all-platforms /tmp/image.tar
-      
+          docker load --input /tmp/image.tar
+
+      - name: Login to Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
       - name: Push images to dockerhub
         run: |
-          sudo ctr image tag docker.io/library/kafka-ui:temp docker.io/gocho/kafka-ui:main-ctr
-          sudo ctr image tag docker.io/library/kafka-ui:temp docker.io/gocho/kafka-ui:${{ needs.build.outputs.version }}-ctr
-          sudo ctr image push --user "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" docker.io/gocho/kafka-ui:main-ctr
-          sudo ctr image push --user "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" docker.io/gocho/kafka-ui:${{ needs.build.outputs.version }}-ctr
+          docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
+          docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ needs.build.outputs.version }}
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ needs.build.outputs.version }}
 
