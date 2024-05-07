@@ -107,6 +107,17 @@ jobs:
           name: image
           path: /tmp
 
+      # setup containerd to preserve provenance attestations :https://docs.docker.com/build/attestations/#creating-attestations
+      - name: Setup docker with containerd
+        uses: crazy-max/ghaction-setup-docker@v3
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }     
+                      
       - name: Load docker image into daemon
         run: |
           docker load --input /tmp/image.tar
@@ -117,6 +128,7 @@ jobs:
           registry: ghcr.io
           username: "${{ github.actor }}"
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push images to GHCR
         run: |
           docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:main
@@ -137,6 +149,17 @@ jobs:
         with:
           name: image
           path: /tmp
+
+      # setup containerd to preserve provenance attestations :https://docs.docker.com/build/attestations/#creating-attestations
+      - name: Setup docker with containerd
+        uses: crazy-max/ghaction-setup-docker@v3
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }     
 
       - name: Load docker image into daemon
         run: |
