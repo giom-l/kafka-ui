@@ -97,7 +97,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      contents: read
       packages: write
 
     steps: 
@@ -139,9 +138,6 @@ jobs:
   deploy-dockerhub:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      contents: read
-      packages: read
 
     steps: 
       - name: Download docker image
@@ -178,3 +174,51 @@ jobs:
           docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
           docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ needs.build.outputs.version }}
 
+
+  deploy-ecr:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write # This is required for requesting the JWT
+
+    steps: 
+      - name: Download docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: image
+          path: /tmp
+
+      # setup containerd to preserve provenance attestations :https://docs.docker.com/build/attestations/#creating-attestations
+      - name: Setup docker with containerd
+        uses: crazy-max/ghaction-setup-docker@v3
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }     
+
+      - name: Load docker image into daemon
+        run: |
+          docker load --input /tmp/image.tar
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Login to public ECR
+        uses: docker/login-action@v3
+        with:
+          registry: public.ecr.aws
+        
+      - name: Push images to ECR
+        run: |
+          docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:main
+          docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
+          docker push public.ecr.aws/j4u0y1h1/kafka-ui:main
+          docker push public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
+
+        
