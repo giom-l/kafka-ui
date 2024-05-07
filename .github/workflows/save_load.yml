@@ -179,6 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
+      contents: read # To read secrets
       id-token: write # This is required for requesting the JWT
 
     steps: 
@@ -206,19 +207,24 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: eu-west-1
+          aws-region: us-east-1 # This region only for public ECR
           role-to-assume: ${{ secrets.AWS_ROLE }}
 
       - name: Login to public ECR
         uses: docker/login-action@v3
         with:
           registry: public.ecr.aws
-        
-      - name: Push images to ECR
-        run: |
-          docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:main
-          docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
-          docker push public.ecr.aws/j4u0y1h1/kafka-ui:main
-          docker push public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
+
+      - name: Push to ECR
+        uses: jwalton/gh-ecr-push@v2
+        with:
+          local-image: kafka-ui:temp
+          image: public.ecr.aws/j4u0y1h1/kafka-ui:main, public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}  
+      # - name: Push images to ECR
+      #   run: |
+      #     docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:main
+      #     docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
+      #     docker push public.ecr.aws/j4u0y1h1/kafka-ui:main
+      #     docker push public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
 
         
