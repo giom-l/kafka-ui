@@ -211,20 +211,20 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE }}
 
       - name: Login to public ECR
-        uses: docker/login-action@v3
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
         with:
-          registry: public.ecr.aws
+          registry-type: public
 
       - name: Push to ECR
-        uses: jwalton/gh-ecr-push@v2
-        with:
-          local-image: kafka-ui:temp
-          image: public.ecr.aws/j4u0y1h1/kafka-ui:main, public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}  
-      # - name: Push images to ECR
-      #   run: |
-      #     docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:main
-      #     docker tag kafka-ui:temp public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
-      #     docker push public.ecr.aws/j4u0y1h1/kafka-ui:main
-      #     docker push public.ecr.aws/j4u0y1h1/kafka-ui:${{ needs.build.outputs.version }}
+        env:
+          REGISTRY: ${{steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: j4u0y1h1
+          REPOSITORY: kafka-ui
+        run: |
+          docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:main
+          docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ needs.build.outputs.version }}
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:main
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ needs.build.outputs.version }}
 
         
