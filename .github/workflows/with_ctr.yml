@@ -77,7 +77,7 @@ jobs:
           context: api
           platforms: linux/amd64,linux/arm64
           provenance: true
-          sbom: true
+          #sbom: true
           push: false
           tags: |
             kafka-ui:temp
@@ -110,7 +110,7 @@ jobs:
 
       # with containerd way
       - name: Set up containerd
-        uses: crazy-max/ghaction-setup-containerd@v2       
+        uses: crazy-max/ghaction-setup-containerd@v3       
 
       - name: Import image in containerd
         run: |
@@ -139,7 +139,7 @@ jobs:
 
       # with containerd way
       - name: Set up containerd
-        uses: crazy-max/ghaction-setup-containerd@v2       
+        uses: crazy-max/ghaction-setup-containerd@v3       
 
       - name: Import image in containerd
         run: |
