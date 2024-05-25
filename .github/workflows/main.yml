@@ -61,6 +61,10 @@ jobs:
       
   docker-deploy: 
     needs: [jar-build, docker-build]
+    permissions:
+      contents: read # To read secrets
+      id-token: write # This is required for requesting the JWT
+      packages: write
     uses: ./.github/workflows/docker_publish.yml
     secrets: inherit
     with:
