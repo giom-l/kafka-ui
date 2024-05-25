@@ -23,7 +23,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jar
-          path: /api/target/
+          path: /target/
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -67,7 +67,7 @@ jobs:
           tags: |
             kafka-ui:temp
             build-args: |
-              JAR_FILE=api-${{ inputs.version }}.jar
+              JAR_FILE=/target/api-${{ inputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
