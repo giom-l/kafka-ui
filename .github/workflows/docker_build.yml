@@ -76,8 +76,8 @@ jobs:
           load: true
           tags: |
             kafka-ui:temp
-            build-args: |
-              JAR_FILE=api-${{ inputs.version }}.jar
+          build-args: |
+            JAR_FILE=api-${{ inputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
