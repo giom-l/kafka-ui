@@ -29,7 +29,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: kafbat-ui-${{ inputs.version }}
-          path: api/target/api-${{ inputs.version }}.jar
+          path: api/target
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
