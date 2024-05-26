@@ -24,12 +24,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           token: ${{ github.token }}  
-              
+
       - name: Download maven artifacts
         uses: actions/download-artifact@v4
         with:
-          name: api-jar
-          path: /tmp
+          name: kafbat-ui-${{ inputs.version }}
+          path: api/target/api-${{ inputs.version }}.jar
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -59,6 +59,10 @@ jobs:
                 }
             }         
 
+      - name: debug
+        run: |
+          ls -laRh api/target
+
       - name: Build docker image
         id: docker_build
         uses: docker/build-push-action@v5
@@ -73,7 +77,7 @@ jobs:
           tags: |
             kafka-ui:temp
             build-args: |
-              JAR_FILE=/tmp/api-${{ inputs.version }}.jar
+              JAR_FILE=api-${{ inputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
