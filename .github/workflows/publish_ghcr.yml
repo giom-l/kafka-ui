@@ -41,13 +41,17 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: "${{ github.actor }}"
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push images to GHCR
         run: |
-          docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:main
-          docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:${{ inputs.version }}
-          docker push ghcr.io/kafbat/kafka-ui:main
-          docker push ghcr.io/kafbat/kafka-ui:${{ inputs.version }}
+          # docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:main
+          # docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:${{ inputs.version }}
+          # docker push ghcr.io/kafbat/kafka-ui:main
+          # docker push ghcr.io/kafbat/kafka-ui:${{ inputs.version }}
+          docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:main
+          docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:${{ inputs.version }}
+          docker push ghcr.io/giom-l/kafka-ui:main
+          docker push ghcr.io/giom-l/kafka-ui:${{ inputs.version }}
 
