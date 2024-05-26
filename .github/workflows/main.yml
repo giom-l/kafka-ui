@@ -40,11 +40,7 @@ jobs:
           ./mvnw -V -B -ntp clean package -Pprod -DskipTests
           export VERSION=$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          
-      - name: check folder
-        run: | 
-          ls -laRh ./api/target
-          
+         
       - name: Upload jar
         uses: actions/upload-artifact@v4
         with:

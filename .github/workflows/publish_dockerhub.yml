@@ -41,7 +41,7 @@ jobs:
         
       - name: Push images to dockerhub
         run: |
-          docker tag kafka-ui:temp docker.io/kafbat/kafka-ui:main
-          docker tag kafka-ui:temp docker.io/kafbat/kafka-ui:${{ inputs.version }}
-          docker push docker.io/kafbat/kafka-ui:main
-          docker push docker.io/kafbat/kafka-ui:${{ inputs.version }}
+          docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
+          docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.version }}
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.version }}
