@@ -19,11 +19,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ github.token }}  
+              
       - name: Download maven artifacts
         uses: actions/download-artifact@v4
         with:
-          name: jar
-          path: /target/
+          name: api-jar
+          path: /tmp
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -67,7 +73,7 @@ jobs:
           tags: |
             kafka-ui:temp
             build-args: |
-              JAR_FILE=/target/api-${{ inputs.version }}.jar
+              JAR_FILE=/tmp/api-${{ inputs.version }}.jar
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
