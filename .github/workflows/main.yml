@@ -43,13 +43,13 @@ jobs:
           
       - name: check folder
         run: | 
-          ls -laRh .
+          ls -laRh ./api/target
           
       - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
-          name: jar
-          path: /target/api-${{ steps.build.outputs.version }}.jar
+          name: api-jar
+          path: ./api/target/api-${{ steps.build.outputs.version }}.jar
           retention-days: 7
 
   docker-build:
