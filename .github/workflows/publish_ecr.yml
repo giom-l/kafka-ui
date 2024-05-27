@@ -7,6 +7,10 @@ on:
       version:
         required: true
         type: string
+      generic_tag:
+        required: true
+        type: string       
+         
 jobs:
   deploy-ecr:
     runs-on: ubuntu-latest
@@ -54,7 +58,7 @@ jobs:
           REGISTRY_ALIAS: j4u0y1h1
           REPOSITORY: kafka-ui
         run: |
-          docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:main
+          docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.generic_tag }}
           docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.version }}
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:main
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.generic_tag }}
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.version }}          

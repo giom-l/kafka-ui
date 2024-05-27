@@ -7,6 +7,10 @@ on:
       version:
         required: true
         type: string
+      generic_tag:
+        required: true
+        type: string        
+        
 jobs:
 
   deploy-ghcr:
@@ -46,12 +50,12 @@ jobs:
 
       - name: Push images to GHCR
         run: |
-          # docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:main
+          # docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:${{ inputs.generic_tag }}
           # docker tag kafka-ui:temp ghcr.io/kafbat/kafka-ui:${{ inputs.version }}
-          # docker push ghcr.io/kafbat/kafka-ui:main
+          # docker push ghcr.io/kafbat/kafka-ui:${{ inputs.generic_tag }}
           # docker push ghcr.io/kafbat/kafka-ui:${{ inputs.version }}
-          docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:main
+          docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:${{ inputs.generic_tag }}
           docker tag kafka-ui:temp ghcr.io/giom-l/kafka-ui:${{ inputs.version }}
-          docker push ghcr.io/giom-l/kafka-ui:main
+          docker push ghcr.io/giom-l/kafka-ui:${{ inputs.generic_tag }}
           docker push ghcr.io/giom-l/kafka-ui:${{ inputs.version }}
 

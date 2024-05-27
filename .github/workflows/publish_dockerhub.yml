@@ -7,6 +7,9 @@ on:
       version:
         required: true
         type: string
+      generic_tag:
+        required: true
+        type: string
 jobs:
 
   deploy-dockerhub:
@@ -41,7 +44,7 @@ jobs:
         
       - name: Push images to dockerhub
         run: |
-          docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
+          docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.generic_tag }}
           docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.version }}
-          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:main
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.generic_tag }}
           docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.version }}
