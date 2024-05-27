@@ -63,8 +63,8 @@ jobs:
     with:
       sha: ${{ github.sha }}
       version: ${{ needs.release.outputs.version }}
-      
-  docker-deploy: 
+
+  docker-deploy:
     needs: [release, docker-build]
     permissions:
       contents: read # To read secrets

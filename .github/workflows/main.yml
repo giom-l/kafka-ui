@@ -40,7 +40,7 @@ jobs:
           ./mvnw -V -B -ntp clean package -Pprod -DskipTests
           export VERSION=$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-         
+
       - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
@@ -58,8 +58,8 @@ jobs:
     with:
       sha: ${{ github.sha }}
       version: ${{ needs.jar-build.outputs.version }}
-      
-  docker-deploy: 
+
+  docker-deploy:
     needs: [jar-build, docker-build]
     permissions:
       contents: read # To read secrets

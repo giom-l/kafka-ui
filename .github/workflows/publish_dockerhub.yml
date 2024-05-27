@@ -14,7 +14,7 @@ jobs:
 
   deploy-dockerhub:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Download docker image
         uses: actions/download-artifact@v4
         with:
@@ -30,8 +30,8 @@ jobs:
               "features": {
                 "containerd-snapshotter": true
               }
-            }     
-                      
+            }
+
       - name: Load docker image into daemon
         run: |
           docker load --input /tmp/image.tar
@@ -41,7 +41,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
+
       - name: Push images to dockerhub
         run: |
           docker tag kafka-ui:temp docker.io/${{ secrets.DOCKERHUB_USERNAME }}/kafka-ui:${{ inputs.generic_tag }}

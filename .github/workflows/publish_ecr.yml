@@ -9,8 +9,8 @@ on:
         type: string
       generic_tag:
         required: true
-        type: string       
-         
+        type: string
+
 jobs:
   deploy-ecr:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
       contents: read # To read secrets
       id-token: write # This is required for requesting the JWT
 
-    steps: 
+    steps:
       - name: Download docker image
         uses: actions/download-artifact@v4
         with:
@@ -34,11 +34,11 @@ jobs:
               "features": {
                 "containerd-snapshotter": true
               }
-            }     
-                      
+            }
+
       - name: Load docker image into daemon
         run: |
-          docker load --input /tmp/image.tar      
+          docker load --input /tmp/image.tar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -61,4 +61,4 @@ jobs:
           docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.generic_tag }}
           docker tag kafka-ui:temp $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.version }}
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.generic_tag }}
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.version }}          
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ inputs.version }}

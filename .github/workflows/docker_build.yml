@@ -8,7 +8,7 @@ on:
         type: string
       version:
         required: true
-        type: string  
+        type: string
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          token: ${{ github.token }}  
+          token: ${{ github.token }}
 
       - name: Download maven artifacts
         uses: actions/download-artifact@v4
@@ -46,7 +46,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-        # Build multi platform images and loading them at the same time is not possible with default container runtime : https://github.com/docker/buildx/issues/59   
+        # Build multi platform images and loading them at the same time is not possible with default container runtime : https://github.com/docker/buildx/issues/59
         # So let's use containerd instead as it supports this option
         # Also containerd is one of the option to allow preserving provenance attestations :https://docs.docker.com/build/attestations/#creating-attestations
       - name: Setup docker with containerd
@@ -57,7 +57,7 @@ jobs:
                 "features": {
                 "containerd-snapshotter": true
                 }
-            }         
+            }
 
       - name: debug
         run: |

@@ -9,8 +9,8 @@ on:
         type: string
       generic_tag:
         required: true
-        type: string        
-        
+        type: string
+
 jobs:
 
   deploy-ghcr:
@@ -19,7 +19,7 @@ jobs:
     permissions:
       packages: write
 
-    steps: 
+    steps:
       - name: Download docker image
         uses: actions/download-artifact@v4
         with:
@@ -35,8 +35,8 @@ jobs:
               "features": {
                 "containerd-snapshotter": true
               }
-            }     
-                      
+            }
+
       - name: Load docker image into daemon
         run: |
           docker load --input /tmp/image.tar
