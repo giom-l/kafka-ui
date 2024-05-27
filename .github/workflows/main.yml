@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [ "feat/test_split" ]
+    branches: [ "feat/test_split", "feat/matrix_strategy" ]
 
 permissions:
   contents: read
@@ -69,3 +69,4 @@ jobs:
     secrets: inherit
     with:
       version: ${{ needs.jar-build.outputs.version }}
+      generic_tag: main
