@@ -65,7 +65,7 @@ jobs:
       contents: read # To read secrets
       id-token: write # This is required for requesting the JWT
       packages: write
-    uses: ./.github/workflows/docker_publish.yml
+    uses: ./.github/workflows/docker_publish_matrix.yml
     secrets: inherit
     with:
       version: ${{ needs.jar-build.outputs.version }}
