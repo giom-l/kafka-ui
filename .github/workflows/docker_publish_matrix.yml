@@ -93,8 +93,8 @@ jobs:
         
       - name: Push images to ${{ matrix.registry }}
         run: |
-          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.owner }}/${{ env.repository }}:${{ inputs.generic_tag }}
-          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.owner }}/${{ env.repository }}:${{ inputs.version }}
-          docker push ${{ env.REGISTRY }}/${{ env.owner }}/${{ env.repository }}:${{ inputs.generic_tag }}
-          docker push ${{ env.REGISTRY }}/${{ env.owner }}/${{ env.repository }}:${{ inputs.version }}
+          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
+          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.version }}
+          docker push ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
+          docker push ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.version }}
     
