@@ -77,26 +77,26 @@ jobs:
         run: |
           if [ ${{matrix.registry }} == 'docker.io' ]; then
             echo "REGISTRY=${{ matrix.registry }}" >> $GITHUB_ENV
-            echo "OWNER=gocho" >> $GITHUB_ENV
-            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
+            echo "OWNER=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
+            echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
           elif [ ${{ matrix.registry }} == 'ghcr.io' ]; then
             echo "REGISTRY=${{ matrix.registry }}" >> $GITHUB_ENV
             echo "OWNER=${{ github.actor }}" >> $GITHUB_ENV
-            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
+            echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
           elif [ ${{ matrix.registry }} == 'ecr' ]; then
             echo "REGISTRY=${{ steps.login-ecr-public.outputs.registry }}" >> $GITHUB_ENV
             echo "OWNER=j4u0y1h1" >> $GITHUB_ENV
-            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
+            echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
           else 
             echo "REGISTRY=" >> $GITHUB_ENV
             echo "OWNER=" >> $GITHUB_ENV
-            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
+            echo "REPOSITORY=notworking" >> $GITHUB_ENV
           fi
         
       - name: Push images to ${{ matrix.registry }}
         run: |
-          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
-          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.version }}
-          docker push ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
-          docker push ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.version }}
+          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
+          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.version }}
+          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
+          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.version }}
     
