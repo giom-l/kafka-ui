@@ -12,8 +12,8 @@ on:
         type: string        
 
 permissions:
-  # contents: read # To read secrets
-  # id-token: write # This is required for requesting the JWT
+  # contents: read # To read secrets for docker publish
+  id-token: write # Required to authenticate with OIDC for AWS
   packages: write
 
 jobs:
@@ -83,15 +83,18 @@ jobs:
           if [ ${{matrix.registry }} == 'docker.io' ]; then
             echo "REGISTRY=${{ matrix.registry }}" >> $GITHUB_ENV
             echo "OWNER=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
-            echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
+            # hardcoded repository only for my own case
+            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
           elif [ ${{ matrix.registry }} == 'ghcr.io' ]; then
             echo "REGISTRY=${{ matrix.registry }}" >> $GITHUB_ENV
             echo "OWNER=${{ github.actor }}" >> $GITHUB_ENV
-            echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
+            # hardcoded repository only for my own case
+            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
           elif [ ${{ matrix.registry }} == 'ecr' ]; then
             echo "REGISTRY=${{ steps.login-ecr-public.outputs.registry }}" >> $GITHUB_ENV
             echo "OWNER=j4u0y1h1" >> $GITHUB_ENV
-            echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
+            # hardcoded repository only for my own case
+            echo "REPOSITORY=kafka-ui" >> $GITHUB_ENV
           else 
             echo "REGISTRY=" >> $GITHUB_ENV
             echo "OWNER=" >> $GITHUB_ENV
