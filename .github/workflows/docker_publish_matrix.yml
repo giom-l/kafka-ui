@@ -11,6 +11,11 @@ on:
         required: true
         type: string        
 
+permissions:
+  # contents: read # To read secrets
+  # id-token: write # This is required for requesting the JWT
+  packages: write
+
 jobs:
   deploy:
     continue-on-error: true
@@ -95,8 +100,8 @@ jobs:
         
       - name: Push images to ${{ matrix.registry }}
         run: |
-          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
-          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.version }}
-          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
-          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ inputs.version }}
+          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
+          docker tag kafka-ui:temp ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.version }}
+          docker push ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.generic_tag }}
+          docker push ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPOSITORY }}:${{ inputs.version }}
     
